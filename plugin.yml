@@ -1,0 +1,10 @@
+name: S
+author: firsttry
+main: io.github.randomkiddo.s.Main
+version: 1.2.7
+commands:
+  s:
+    usage: /s
+    description: Auto-creative and vanish
+    permission: s.op
+    permission-message: You don't have enough credentials to run this command!
