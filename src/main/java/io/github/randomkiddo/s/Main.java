@@ -5,6 +5,8 @@ import java.util.HashMap;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,7 +14,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.event.Listener;
@@ -126,5 +127,32 @@ public class Main extends JavaPlugin implements CommandExecutor, Listener {
     }
     private boolean isSResistance(PotionEffect effect) {
         return (effect.getType().toString().contains("DAMAGE_RESISTANCE") && effect.getAmplifier() == 255);
+    }
+    @Override public void onDisable() {
+        for (String name : this.sList.keySet()) {
+            Player player = this.findPlayer(name);
+            player.setGameMode(GameMode.SURVIVAL);
+            ItemStack[] saved = this.sList.get(player.getName());
+            player.getInventory().setContents(saved);
+            ItemStack[] armor = this.armorList.get(player.getName());
+            player.getInventory().setArmorContents(armor);
+            player.showPlayer(player);
+            this.sList.remove(player.getName());
+            this.armorList.remove(player.getName());
+            PotionEffect resistance = new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE,
+                    200, 255);
+            player.addPotionEffect(resistance);
+        }
+    }
+    private Player findPlayer(String name) {
+        final OfflinePlayer[] players = Bukkit.getOfflinePlayers();
+        for (OfflinePlayer player : players) {
+            if (player.getName().equalsIgnoreCase(name)) { return player.getPlayer(); }
+        }
+        return null;
+    }
+    @EventHandler public void onPlace(BlockPlaceEvent place) {
+        String name = place.getItemInHand().getItemMeta().getDisplayName();
+        if (name.equals("Change Gamemode") || name.equals("Change Vanish")) { place.setCancelled(true); }
     }
 }
