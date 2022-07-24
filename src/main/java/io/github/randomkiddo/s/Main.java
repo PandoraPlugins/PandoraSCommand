@@ -152,7 +152,18 @@ public class Main extends JavaPlugin implements CommandExecutor, Listener {
         return null;
     }
     @EventHandler public void onPlace(BlockPlaceEvent place) {
-        String name = place.getItemInHand().getItemMeta().getDisplayName();
-        if (name.equals("Change Gamemode") || name.equals("Change Vanish")) { place.setCancelled(true); }
+        try {
+            String name = place.getItemInHand().getItemMeta().getDisplayName();
+            if (name.equals("Change Gamemode") || name.equals("Change Vanish")) {
+                place.setCancelled(true);
+            }
+        } catch (NullPointerException e) {
+            /*
+            NullPointerException occurs due to item place versus item interact
+            conflict. It is easier to ignore the error than it is to hard-
+            code a fix.
+             */
+            return;
+        }
     }
 }
